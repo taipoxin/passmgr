@@ -11,20 +11,16 @@ import (
 )
 
 func createStorage(storagename string) {
-	file, err := os.Create(storagename) // создаем файл
-	if err != nil {                     // если возникла ошибка
+	file, err := os.Create(storagename)
+	if err != nil {
 		fmt.Println("Unable to create file:", err)
-		os.Exit(1) // выходим из программы
+		os.Exit(1)
 	}
 	defer file.Close()
 
 }
 
 func ReadStorage(storage string) []byte {
-	if storage == "" {
-		fmt.Println("Using default storage")
-		storage = "default"
-	}
 	dat, err := ioutil.ReadFile(storage)
 	if err != nil {
 		fmt.Println("Unable to read storage, creating it")
@@ -34,7 +30,7 @@ func ReadStorage(storage string) []byte {
 	return dat
 }
 
-func fillStorage(storage string) []string {
+func FillStorage() []string {
 	fmt.Println("Now you can fill storage with name-pass values")
 	fmt.Println("Write for example 'user pass', then press enter")
 	fmt.Println("When your want to stop, write 's' and press Enter")
@@ -56,7 +52,18 @@ func fillStorage(storage string) []string {
 	return storageArr
 }
 
-func saveStorage(storage string, data string) {
+func SaveStorageArr(storage string, data []string) {
+	// arr to string casting
+	var datastr string
+	for _, el := range data {
+		datastr += el + "\n"
+	}
+	datastr = datastr[:len(datastr)-2]
+
+	SaveStorage(storage, datastr)
+}
+
+func SaveStorage(storage string, data string) {
 	fmt.Println("Now save you storage data")
 	pwd := auth.CreatePwd()
 	encdata := aes.Encrypt(pwd, data)
@@ -69,27 +76,17 @@ func saveStorage(storage string, data string) {
 	fmt.Println("Saved to", storage)
 }
 
-func arrToStr(arr []string) (str string) {
-	for _, el := range arr {
-		str += el + "\n"
-	}
-	str = str[:len(str)-2]
-	return
-}
-
 func SelectStorage(storage string) {
 	res := ReadStorage(storage)
 	if res == nil || len(res) == 0 {
 		fmt.Println("Now storage is empty")
-		data := fillStorage(storage)
-		saveStorage(storage, arrToStr(data))
+		data := FillStorage()
+		SaveStorageArr(storage, data)
 		res = ReadStorage(storage)
+		fmt.Println("Now storage collect some data")
 	}
-	fmt.Println("Now storage collect some data")
-	fmt.Println(string(res))
-	var success bool
 	var decrypted []byte
-	for !success {
+	for {
 		fmt.Println("To read data write your pass")
 		pwd := auth.AuthPwd()
 		data, err := aes.Decrypt(pwd, res)
@@ -98,12 +95,30 @@ func SelectStorage(storage string) {
 			continue
 		}
 		decrypted = data
-		success = true
+		break
 	}
-
 	fmt.Println("This is your data:")
 	strs := strings.Split(string(decrypted), "\n")
 	for i, p := range strs {
 		fmt.Printf("%v. %v\n", i+1, p)
 	}
+	fmt.Println("\n")
+}
+
+func ChangeStoragePwd(storageName string) {
+	res := ReadStorage(storageName)
+	fmt.Println("To change password write your old password")
+	var decrypted []byte
+	for {
+		pwd := auth.AuthPwd()
+		data, err := aes.Decrypt(pwd, res)
+		if err != nil {
+			fmt.Println("Error in decryption, try again")
+			continue
+		}
+		decrypted = data
+		break
+	}
+	SaveStorage(storageName, string(decrypted))
+
 }
