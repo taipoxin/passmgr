@@ -46,6 +46,7 @@ func fillStorage(storage string) []string {
 		if str == "s" {
 			break
 		}
+		str = strings.TrimSpace(str)
 		storageArr = append(storageArr, str)
 	}
 	fmt.Println("Your storage is:")
