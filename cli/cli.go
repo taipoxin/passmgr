@@ -8,9 +8,6 @@ import (
 	"strings"
 )
 
-// TODO: make passwrd store in memory for one session
-// TODO: make 'add value' and 'change storage'
-
 func manipulateMessagePrint(storageName string) {
 	fmt.Printf("Storage with name %v exists, what you want to do?\n", storageName)
 	fmt.Println("1. Get storage data")
@@ -19,6 +16,7 @@ func manipulateMessagePrint(storageName string) {
 	fmt.Println("4. Exit")
 }
 
+// pwd - cached value of entered successful password
 func manipulateStorage(storageName string, pwd string) {
 	manipulateMessagePrint(storageName)
 	scanner := bufio.NewScanner(os.Stdin)

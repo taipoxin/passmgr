@@ -120,7 +120,8 @@ func SelectStorage(storage string, pwd string) string {
 	for i, p := range strs {
 		fmt.Printf("%v. %v\n", i+1, p)
 	}
-	fmt.Println("\n")
+	fmt.Println()
+	fmt.Println()
 	return pwd
 }
 
@@ -231,9 +232,6 @@ func ChangeStorage(storageName string, pwd string) string {
 				continue
 			}
 			strs[pos1-1], strs[pos2-1] = strs[pos2-1], strs[pos1-1]
-			// cache := strs[pos1]
-			// strs[pos1] = strs[pos2]
-			// strs[pos2] = cache
 			messageOK(strs)
 
 		case "exit":
